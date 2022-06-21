@@ -3,7 +3,7 @@ import sqlite3
 connection = sqlite3.connect("to-do-list.db")
 
 def create_table(connection):
-    try:    
+    try:
         cursor = connection.cursor()
         cursor.execute("""CREATE TABLE task(task text)""")
     except:
@@ -15,28 +15,42 @@ def show_tasks(connection):
     result = cursor.fetchall()
 
     for row in result:
-        print(str(row[0]) + " " + str(row[1]))
+        print(str(row[0]) + " - " + row[1])
+
 
 def add_task(connection):
-    print("Adding task")
+    print("Adding task.")
     task = input("Enter task name: ")
     if task == "0":
-        print("Return to menu")
+        print("Return to menu.")
     else:
         cursor = connection.cursor()
-        cursor.execute("""INSERT INTO task (task) VALUES (?)""", (task,))
+        cursor.execute("""INSERT INTO task(task) VALUES(?)""", (task,))
         connection.commit()
-        print("Task has been added!")
+        print("Task has been added!=.")
+
+def delete_task(connection):
+    task_index = int(input("Enter task's number to delete: "))
+
+    cursor = connection.cursor()
+    rows_deleted = cursor.execute("""DELETE FROM task WHERE rowid=?""", (task_index,)).rowcount
+    connection.commit()
+
+    if rows_deleted == 0:
+        print("This task doesn't exists!")
+    else:
+        print("Task has been removed.")
 
 create_table(connection)
 
 while True:
     print()
-    print("1. Show tasks")
-    print("2. Add task")
-    print("3. Quit program")
+    print("[1] - [Show] task list")
+    print("[2] - [Add] task to list")
+    print("[3] - [Delete] task from list")
+    print("[4] - [Exit]")
 
-    user_choice = int(input("Choose option: "))
+    user_choice = int(input("Choose an option: "))
     print()
 
     if user_choice == 1:
@@ -44,8 +58,11 @@ while True:
 
     if user_choice == 2:
         add_task(connection)
-        
+
+    if user_choice == 3:
+        delete_task(connection)
+
     if user_choice == 4:
         break
 
-connection.close()    
+connection.close()
